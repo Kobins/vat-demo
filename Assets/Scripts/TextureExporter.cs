@@ -68,13 +68,13 @@ public class TextureExporter : MonoBehaviour
         {
             clip.SampleAnimation(obj, t); // 오브젝트에 특정 시간대 애니메이션 적용
             renderer.BakeMesh(mesh); // mesh에 현재 메시 상태 저장 
-
+            var tempVertices = mesh.vertices;
             sb.Clear();
             sb.AppendLine($"at {t:F2}s ...");
             for (int x = 0; x < mesh.vertexCount; x++)
             {
                 // [0, 1]로 정규화
-                var rawPosition = mesh.vertices[x];
+                var rawPosition = tempVertices[x];
                 var normalizedPosition = bounds.Normalize(rawPosition);
                 var color = EncodePositionToRGB(normalizedPosition);
                 sb.AppendLine($"[{x:0000}] {rawPosition} => {normalizedPosition} => {color.Colored(color)}");
