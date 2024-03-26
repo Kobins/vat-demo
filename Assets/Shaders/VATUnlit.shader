@@ -7,8 +7,6 @@ Shader "VAT/VATUnlit"
         _VAT_Float ("VAT Float", Float) = 0
         [ShowAsVector3] _VAT_Bounds_Min ("VAT Bounds Min", Vector) = (0,0,0,0)
         [ShowAsVector3] _VAT_Bounds_Max ("VAT Bounds Max", Vector) = (0,0,0,0)
-//        [ShowAsVector2]
-//        _VAT_Vertices_TexelSize ("VAT Vertices Size", Vector) = (1024, 1024, 0, 0)
     }
     SubShader
     {
@@ -53,13 +51,16 @@ Shader "VAT/VATUnlit"
                 float y = _VAT_Float;
                 float4 uv = float4(x, y, 0, 0);
                 float4 pos = tex2Dlod(_VAT_Vertices, uv);
-                pos.x = lerp(_VAT_Bounds_Min.x, _VAT_Bounds_Max.x, pos.x);
-                pos.y = lerp(_VAT_Bounds_Min.y, _VAT_Bounds_Max.y, pos.y);
-                pos.z = lerp(_VAT_Bounds_Min.z, _VAT_Bounds_Max.z, pos.z);
+                float3 position = float3(
+                    lerp(_VAT_Bounds_Min.x, _VAT_Bounds_Max.x, pos.r),
+                    lerp(_VAT_Bounds_Min.y, _VAT_Bounds_Max.y, pos.g),
+                    lerp(_VAT_Bounds_Min.z, _VAT_Bounds_Max.z, pos.b)
+                );
                 
                 
                 v2f o;
-                o.vertex = UnityObjectToClipPos(pos);
+                o.vertex = UnityObjectToClipPos(position);
+                // o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 UNITY_TRANSFER_FOG(o,o.vertex);
                 return o;

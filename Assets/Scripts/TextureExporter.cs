@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
@@ -60,18 +62,25 @@ public class TextureExporter : MonoBehaviour
         var bounds = originalMesh.bounds;
         var mesh = new Mesh();
         int y = 0;
+        Debug.Log($"Bounds: {bounds.Colored(Color.yellow)}");
+        var sb = new StringBuilder(mesh.vertexCount);
         for (float t = 0; t < clip.length; t += timeUnit)
         {
             clip.SampleAnimation(obj, t); // 오브젝트에 특정 시간대 애니메이션 적용
             renderer.BakeMesh(mesh); // mesh에 현재 메시 상태 저장 
 
+            sb.Clear();
+            sb.AppendLine($"at {t:F2}s ...");
             for (int x = 0; x < mesh.vertexCount; x++)
             {
                 // [0, 1]로 정규화
-                var normalizedPosition = bounds.Normalize(mesh.vertices[x]);
+                var rawPosition = mesh.vertices[x];
+                var normalizedPosition = bounds.Normalize(rawPosition);
                 var color = EncodePositionToRGB(normalizedPosition);
+                sb.AppendLine($"[{x:0000}] {rawPosition} => {normalizedPosition} => {color.Colored(color)}");
                 texture.SetPixel(x, y, color);
             }
+            Debug.Log(sb.ToString());
 
             ++y;
         }

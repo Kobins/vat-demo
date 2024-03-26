@@ -20,9 +20,16 @@ public class BoundPropertySetter : MonoBehaviour
         if(!renderer) return;
         foreach (var mat in renderer.materials)
         {
-            var bounds = renderer.bounds;
+            var bounds = renderer.localBounds;
             mat.SetVector(VatBoundsMin, bounds.min);
             mat.SetVector(VatBoundsMax, bounds.max);
         }
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.green;
+        var localBounds = renderer.localBounds;
+        Gizmos.DrawWireCube(localBounds.center, localBounds.size);
     }
 }
