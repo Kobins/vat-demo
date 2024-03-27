@@ -21,12 +21,21 @@ public class BoundPropertySetter : MonoBehaviour
     
     private void Update()
     {
-        if(!renderer) return;
-        foreach (var mat in renderer.materials)
+        if (!renderer)
         {
-            var bounds = renderer.localBounds;
-            mat.SetVector(VatBoundsMin, bounds.min);
-            mat.SetVector(VatBoundsMax, bounds.max);
+            renderer = GetComponent<MeshRenderer>();
+            return;
+        }
+        int index = 0;
+        var bounds = renderer.localBounds;
+        foreach (var mat in renderer.sharedMaterials)
+        {
+            MaterialPropertyBlock mpb = new MaterialPropertyBlock();
+            renderer.GetPropertyBlock(mpb, index);
+            mpb.SetVector(VatBoundsMin, bounds.min);
+            mpb.SetVector(VatBoundsMax, bounds.max);
+            renderer.SetPropertyBlock(mpb, index);
+            ++index;
         }
     }
 
@@ -35,7 +44,7 @@ public class BoundPropertySetter : MonoBehaviour
 
     private void OnValidate()
     {
-        CalculateVertex();
+        // CalculateVertex();
     }
 
     private List<Vector3> calculatedVertices = new();
@@ -48,6 +57,7 @@ public class BoundPropertySetter : MonoBehaviour
         colors.Clear();
     }
     
+    /*
     [ContextMenu("Calculate Vertex")]
     private void CalculateVertex()
     {
@@ -67,10 +77,11 @@ public class BoundPropertySetter : MonoBehaviour
             var texture = mat.GetTexture(VatVertices);
             if (texture is Texture2D t)
             {
-                var pixels = t.GetPixels();
+                var pixels = t.GetPixels32();
                 for (int x = 0; x < count; x++)
                 {
-                    var color = pixels[y * count + x];
+                    // var color = pixels[y * count + x];
+                    var color = t.GetPixel(x, y);
                     var v = new Vector3(
                         Mathf.Lerp(min.x, max.x, color.r),
                         Mathf.Lerp(min.y, max.y, color.g),
@@ -123,13 +134,13 @@ public class BoundPropertySetter : MonoBehaviour
                 var v2Origin = originalVertices[triangles[i * 3 + 2]];
                 Gizmos.color = v0Color.MaskG();
                 Gizmos.DrawLine(v0, v1);
-                Gizmos.DrawLine(v0Origin, v1Origin);
+                // Gizmos.DrawLine(v0Origin, v1Origin);
                 Gizmos.color = v1Color.MaskG();
                 Gizmos.DrawLine(v1, v2);
-                Gizmos.DrawLine(v1Origin, v2Origin);
+                // Gizmos.DrawLine(v1Origin, v2Origin);
                 Gizmos.color = v2Color.MaskG();
                 Gizmos.DrawLine(v2, v0);
-                Gizmos.DrawLine(v2Origin, v0Origin);
+                // Gizmos.DrawLine(v2Origin, v0Origin);
                 
                 
                 Gizmos.color = yellow;
@@ -140,8 +151,15 @@ public class BoundPropertySetter : MonoBehaviour
                 // Gizmos.DrawLine(v2Origin, v2);
                 
             }
+
+            for (int i = 0; i < calculatedVertices.Count; i++)
+            {
+                Gizmos.color = colors[i];
+                Gizmos.DrawWireSphere(calculatedVertices[i], 0.01f);
+            }
         }
         
         
     }
+    */
 }

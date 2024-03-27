@@ -94,8 +94,11 @@ public class TextureExporter : MonoBehaviour
         var path = directory + fileName;
         File.WriteAllBytes(directory + fileName, bytes);
         AssetDatabase.Refresh();
-        var asset = AssetDatabase.LoadAssetAtPath($"Assets/Vertex Animation Textures/{fileName}", typeof(Texture2D));
-        Debug.Log($"Exported to {path}", asset);
+
+        var importer = (TextureImporter)AssetImporter.GetAtPath($"Assets/Vertex Animation Textures/{fileName}");
+        Debug.Log($"Exported to {path}", importer);
+        importer.npotScale = TextureImporterNPOTScale.None; // 안하면 개박살남
+        importer.mipmapEnabled = false; // 굳이 할 이유가 없음
     }
     
     private static Color EncodePositionToRGB(in Vector3 positionOS) 
