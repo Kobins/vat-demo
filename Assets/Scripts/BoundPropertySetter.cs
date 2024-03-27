@@ -30,11 +30,11 @@ public class BoundPropertySetter : MonoBehaviour
         var bounds = renderer.localBounds;
         foreach (var mat in renderer.sharedMaterials)
         {
-            MaterialPropertyBlock mpb = new MaterialPropertyBlock();
-            renderer.GetPropertyBlock(mpb, index);
-            mpb.SetVector(VatBoundsMin, bounds.min);
-            mpb.SetVector(VatBoundsMax, bounds.max);
-            renderer.SetPropertyBlock(mpb, index);
+            // MaterialPropertyBlock mpb = new MaterialPropertyBlock();
+            // renderer.GetPropertyBlock(mpb, index);
+            mat.SetVector(VatBoundsMin, bounds.min);
+            mat.SetVector(VatBoundsMax, bounds.max);
+            // renderer.SetPropertyBlock(mpb, index);
             ++index;
         }
     }

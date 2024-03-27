@@ -39,6 +39,7 @@ Shader "VAT/VATUnlit"
 
             sampler2D _MainTex;
             sampler2D _VAT_Vertices;
+            float4 _VAT_Vertices_TexelSize;
             float4 _MainTex_ST;
             float _VAT_Float;
             float3 _VAT_Bounds_Min;
@@ -49,12 +50,12 @@ Shader "VAT/VATUnlit"
                 float x = v.vertexId;
                 // float y = frac(_Time.y * _VAT_Vertices_TexelSize.y);
                 float y = _VAT_Float;
-                float4 uv = float4(x, y, 0, 0);
-                float4 pos = tex2Dlod(_VAT_Vertices, uv);
+                float4 texelPosition = float4(x, y, 0, 0) * _VAT_Vertices_TexelSize;
+                float4 colorPosition = tex2Dlod(_VAT_Vertices, texelPosition);
                 float3 position = float3(
-                    lerp(_VAT_Bounds_Min.x, _VAT_Bounds_Max.x, pos.r),
-                    lerp(_VAT_Bounds_Min.y, _VAT_Bounds_Max.y, pos.g),
-                    lerp(_VAT_Bounds_Min.z, _VAT_Bounds_Max.z, pos.b)
+                    lerp(_VAT_Bounds_Min.x, _VAT_Bounds_Max.x, colorPosition.r),
+                    lerp(_VAT_Bounds_Min.y, _VAT_Bounds_Max.y, colorPosition.g),
+                    lerp(_VAT_Bounds_Min.z, _VAT_Bounds_Max.z, colorPosition.b)
                 );
                 
                 
