@@ -47,9 +47,9 @@ Shader "VAT/VATUnlit"
 
             v2f vert (appdata v)
             {
-                float x = v.vertexId;
-                // float y = frac(_Time.y * _VAT_Vertices_TexelSize.y);
-                float y = _VAT_Float;
+                float x = v.vertexId + 0.5f;
+                // float y = _Time.y + 0.5f;
+                float y = _VAT_Float * _VAT_Vertices_TexelSize.w + 0.5f;
                 float4 texelPosition = float4(x, y, 0, 0) * _VAT_Vertices_TexelSize;
                 float4 colorPosition = tex2Dlod(_VAT_Vertices, texelPosition);
                 float3 position = float3(

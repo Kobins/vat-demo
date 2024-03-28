@@ -34,13 +34,16 @@ public class BoundPropertySetter : MonoBehaviour
             // renderer.GetPropertyBlock(mpb, index);
             mat.SetVector(VatBoundsMin, bounds.min);
             mat.SetVector(VatBoundsMax, bounds.max);
+            mat.SetFloat(VatFloat, y);
             // renderer.SetPropertyBlock(mpb, index);
             ++index;
         }
+
+        y += Time.deltaTime;
     }
 
     private List<Color> pixels = new List<Color>();
-    public int y = 0;
+    public float y = 0;
 
     private void OnValidate()
     {
@@ -49,6 +52,7 @@ public class BoundPropertySetter : MonoBehaviour
 
     private List<Vector3> calculatedVertices = new();
     private List<Color> colors = new();
+    private static readonly int VatFloat = Shader.PropertyToID("_VAT_Float");
 
     [ContextMenu("Clear Calculated Vertices")]
     private void ClearCalculatedVertices()
