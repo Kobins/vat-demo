@@ -11,18 +11,19 @@ public class TextureExporter : MonoBehaviour
     [Header("Objects")]
     // 목표 오브젝트
     public Animator animator;
+
     // 목표 Skinned Mesh Renderer
     public new SkinnedMeshRenderer renderer;
 
-    [Header("Texture Settings")] 
-    public GraphicsFormat format = GraphicsFormat.R8G8B8_UNorm;
+    [Header("Texture Settings")] public GraphicsFormat format = GraphicsFormat.R8G8B8_UNorm;
     public TextureCreationFlags flags = TextureCreationFlags.None;
 
     private void OnValidate()
     {
         if (!SystemInfo.IsFormatSupported(format, FormatUsage.SetPixels))
         {
-            Debug.LogError($"{format} is not supported on this platform, suggests: {SystemInfo.GetCompatibleFormat(format, FormatUsage.SetPixels)}");
+            Debug.LogError(
+                $"{format} is not supported on this platform, suggests: {SystemInfo.GetCompatibleFormat(format, FormatUsage.SetPixels)}");
         }
     }
 
@@ -35,17 +36,18 @@ public class TextureExporter : MonoBehaviour
         Debug.Log($"Animator Object: {obj.name}", obj);
         Debug.Log($"Renderer Object: {renderer.name}", renderer);
         Debug.Log($"Target Mesh: {originalMesh} ({vertices.Length} vertices)", originalMesh);
-        
+
         var clips = animator.runtimeAnimatorController.animationClips;
-        Debug.Log($"exporting {clips.Length} clips from {animator.name}: [{string.Join(", ", clips.Select(it => it.name))}]");
-        
+        Debug.Log(
+            $"exporting {clips.Length} clips from {animator.name}: [{string.Join(", ", clips.Select(it => it.name))}]");
+
         foreach (var clip in clips)
         {
             Debug.Log("================================");
             Export(clip);
         }
     }
-    
+
     private void Export(AnimationClip clip)
     {
         var obj = animator.gameObject;
@@ -80,11 +82,12 @@ public class TextureExporter : MonoBehaviour
                 sb.AppendLine($"[{x:0000}] {rawPosition} => {normalizedPosition} => {color.Colored(color)}");
                 texture.SetPixel(x, y, color);
             }
+
             Debug.Log(sb.ToString());
 
             ++y;
         }
-        
+
         // 텍스처 파일 저장
         texture.Apply();
         var bytes = texture.EncodeToPNG();
@@ -99,8 +102,43 @@ public class TextureExporter : MonoBehaviour
         Debug.Log($"Exported to {path}", importer);
         importer.npotScale = TextureImporterNPOTScale.None; // 안하면 개박살남
         importer.mipmapEnabled = false; // 굳이 할 이유가 없음
+        importer.sRGBTexture = false;
     }
-    
-    private static Color EncodePositionToRGB(in Vector3 positionOS) 
-        => new(positionOS.x, positionOS.y, positionOS.z);
+
+    private static int count = 0;
+    private static Color EncodePositionToRGB(in Vector3 positionOS)
+    {
+        const uint bit11 = 1 << 11;
+        const uint bit10 = 1 << 10;
+        uint rawX = (uint)(positionOS.x * bit11) << (11 + 10);
+        uint rawY = (uint)(positionOS.y * bit10) << (11 +  0);
+        uint rawZ = (uint)(positionOS.z * bit11) << ( 0 +  0);
+        uint raw = (uint)(rawX + rawY + rawZ);
+        if (count++ % 100 == 0)
+        {
+            Debug.Log($"{positionOS} => {ToBinary(raw)} ({rawX}, {rawY}, {rawZ}) / ({rawX >> 21}/2048, {rawY >> 11}/1024, {rawZ}/2048) => {raw}");
+        }
+        const uint maskR = 0xFF000000;
+        const uint maskG = 0x00FF0000;
+        const uint maskB = 0x0000FF00;
+        const uint maskA = 0x000000FF;
+
+        return new Color32(
+            (byte)((raw & maskR) >> 24),
+            (byte)((raw & maskG) >> 16),
+            (byte)((raw & maskB) >> 8),
+            (byte)(raw & maskA)
+        );
+
+        static string ToBinary(uint int32)
+        {
+            var sb = new StringBuilder(32);
+            for (int i = 31; i >= 0; --i)
+            {
+                sb.Append((int32 & (1 << i)) > 0 ? 1 : 0);
+            }
+
+            return sb.ToString();
+        }
+    }
 }

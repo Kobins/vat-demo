@@ -51,7 +51,17 @@ Shader "VAT/VATUnlit"
                 // float y = _Time.y + 0.5f;
                 float y = _VAT_Float * _VAT_Vertices_TexelSize.w + 0.5f;
                 float4 texelPosition = float4(x, y, 0, 0) * _VAT_Vertices_TexelSize;
-                float4 colorPosition = tex2Dlod(_VAT_Vertices, texelPosition);
+                float4 rawColorPosition = tex2Dlod(_VAT_Vertices, texelPosition);
+                uint rawColor =
+                     ((uint)(rawColorPosition.r * 255) << 24)
+                    +((uint)(rawColorPosition.g * 255) << 16)
+                    +((uint)(rawColorPosition.b * 255) <<  8)
+                    +((uint)(rawColorPosition.a * 255) <<  0);
+                float3 colorPosition;
+                colorPosition.r = ((rawColor & 0xFFE00000) >> 21) / 2048.0f; // 0b11111111111000000000000000000000
+                colorPosition.g = ((rawColor & 0x001FF800) >> 11) / 1024.0f; // 0b00000000000111111111100000000000
+                colorPosition.b = ((rawColor & 0x000007FF) >>  0) / 2048.0f; // 0b00000000000000000000011111111111
+                
                 float3 position = float3(
                     lerp(_VAT_Bounds_Min.x, _VAT_Bounds_Max.x, colorPosition.r),
                     lerp(_VAT_Bounds_Min.y, _VAT_Bounds_Max.y, colorPosition.g),
