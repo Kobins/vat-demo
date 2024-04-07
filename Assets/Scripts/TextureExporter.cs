@@ -15,7 +15,8 @@ public class TextureExporter : MonoBehaviour
     // 목표 Skinned Mesh Renderer
     public new SkinnedMeshRenderer renderer;
 
-    [Header("Texture Settings")] public GraphicsFormat format = GraphicsFormat.R8G8B8_UNorm;
+    [Header("Texture Settings")] 
+    public GraphicsFormat format = GraphicsFormat.R8G8B8_UNorm;
     public TextureCreationFlags flags = TextureCreationFlags.None;
 
     private void OnValidate()
@@ -41,14 +42,36 @@ public class TextureExporter : MonoBehaviour
         Debug.Log(
             $"exporting {clips.Length} clips from {animator.name}: [{string.Join(", ", clips.Select(it => it.name))}]");
 
+        var boundData = ScriptableObject.CreateInstance<CustomBoundData>();
+        boundData.bounds = originalMesh.bounds;
+        
+        foreach (var clip in clips)
+        {
+            CalculateBounds(clip, ref boundData.bounds);
+        }
+        AssetDatabase.CreateAsset(boundData, $"Assets/Vertex Animation Textures/{originalMesh.name}_bound.asset");
+        
         foreach (var clip in clips)
         {
             Debug.Log("================================");
-            Export(clip);
+            Export(clip, boundData.bounds);
         }
     }
 
-    private void Export(AnimationClip clip)
+    private void CalculateBounds(AnimationClip clip, ref Bounds bounds)
+    {
+        var obj = animator.gameObject;
+        var timeUnit = 1f / clip.frameRate;
+        var mesh = new Mesh();
+        for (float t = 0; t < clip.length; t += timeUnit)
+        {
+            clip.SampleAnimation(obj, t); // 오브젝트에 특정 시간대 애니메이션 적용
+            renderer.BakeMesh(mesh); // mesh에 현재 메시 상태 저장 
+            bounds.Encapsulate(mesh.bounds);
+        }
+    }
+
+    private void Export(AnimationClip clip, in Bounds bounds)
     {
         var obj = animator.gameObject;
         var originalMesh = renderer.sharedMesh; // 원본 메시
@@ -61,7 +84,7 @@ public class TextureExporter : MonoBehaviour
         var texture = new Texture2D(vertices.Length, frames, format, flags);
         Debug.Log($"Texture Size: {texture.width} x {texture.height}");
 
-        var bounds = originalMesh.bounds;
+        // var bounds = originalMesh.bounds;
         var mesh = new Mesh();
         int y = 0;
         Debug.Log($"Bounds: {bounds.Colored(Color.yellow)}");
@@ -103,6 +126,7 @@ public class TextureExporter : MonoBehaviour
         importer.npotScale = TextureImporterNPOTScale.None; // 안하면 개박살남
         importer.mipmapEnabled = false; // 굳이 할 이유가 없음
         importer.sRGBTexture = false;
+        importer.GetDefaultPlatformTextureSettings().format = TextureImporterFormat.RGBA32;
     }
 
     private static int count = 0;
@@ -114,21 +138,47 @@ public class TextureExporter : MonoBehaviour
         uint rawY = (uint)(positionOS.y * bit10) << (11 +  0);
         uint rawZ = (uint)(positionOS.z * bit11) << ( 0 +  0);
         uint raw = (uint)(rawX + rawY + rawZ);
-        if (count++ % 100 == 0)
+        if (count % 100 == 0)
         {
             Debug.Log($"{positionOS} => {ToBinary(raw)} ({rawX}, {rawY}, {rawZ}) / ({rawX >> 21}/2048, {rawY >> 11}/1024, {rawZ}/2048) => {raw}");
+            
         }
         const uint maskR = 0xFF000000;
         const uint maskG = 0x00FF0000;
         const uint maskB = 0x0000FF00;
         const uint maskA = 0x000000FF;
 
-        return new Color32(
+        Color color = new Color32(
             (byte)((raw & maskR) >> 24),
             (byte)((raw & maskG) >> 16),
             (byte)((raw & maskB) >> 8),
             (byte)(raw & maskA)
         );
+        if (count % 100 == 0)
+        {
+            var rawColorPosition = color;
+            uint rawColor =
+                ((uint)(rawColorPosition.r * 255) << 24)
+                +((uint)(rawColorPosition.g * 255) << 16)
+                +((uint)(rawColorPosition.b * 255) <<  8)
+                +((uint)(rawColorPosition.a * 255) <<  0);
+            Color colorPosition = new Color
+            {
+                r = ((rawColor & 0xFFE00000) >> 21) / 2048.0f, // 0b11111111111000000000000000000000
+                g = ((rawColor & 0x001FF800) >> 11) / 1024.0f, // 0b00000000000111111111100000000000
+                b = ((rawColor & 0x000007FF) >>  0) / 2048.0f, // 0b00000000000000000000011111111111
+                a = 1f,
+            };
+            Vector3 position = new Vector3Int(
+                (int) (colorPosition.r * 2048), 
+                (int) (colorPosition.g * 1024), 
+                (int) (colorPosition.b * 2048)
+            );
+            Debug.Log($"{positionOS} => color: {color}, rawColor: {ToBinary(rawColor)}, colorPosition: {colorPosition}, position: {position}");
+        }
+
+        ++count;
+        return color;
 
         static string ToBinary(uint int32)
         {

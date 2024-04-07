@@ -6,9 +6,12 @@ using UnityEngine;
 [ExecuteAlways]
 public class BoundPropertySetter : MonoBehaviour
 {
+
+    [SerializeField] private CustomBoundData _boundData;
+    
     private MeshFilter meshFilter;
     private new MeshRenderer renderer;
-    
+
     private static readonly int VatBoundsMin = Shader.PropertyToID("_VAT_Bounds_Min");
     private static readonly int VatBoundsMax = Shader.PropertyToID("_VAT_Bounds_Max");
     private static readonly int VatVertices = Shader.PropertyToID("_VAT_Vertices");
@@ -18,7 +21,8 @@ public class BoundPropertySetter : MonoBehaviour
         renderer = GetComponent<MeshRenderer>();
         meshFilter = GetComponent<MeshFilter>();
     }
-    
+
+    private Bounds Bounds => _boundData ? _boundData.bounds : renderer.localBounds;
     private void Update()
     {
         if (!renderer)
@@ -27,7 +31,7 @@ public class BoundPropertySetter : MonoBehaviour
             return;
         }
         int index = 0;
-        var bounds = renderer.localBounds;
+        var bounds = Bounds;
         foreach (var mat in renderer.sharedMaterials)
         {
             // MaterialPropertyBlock mpb = new MaterialPropertyBlock();
