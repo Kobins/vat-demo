@@ -42,20 +42,84 @@ public class TextureExporter : MonoBehaviour
         Debug.Log(
             $"exporting {clips.Length} clips from {animator.name}: [{string.Join(", ", clips.Select(it => it.name))}]");
 
-        var boundData = ScriptableObject.CreateInstance<CustomBoundData>();
-        boundData.bounds = originalMesh.bounds;
-        
+        var data = ScriptableObject.CreateInstance<VATData>();
+        data.bounds = originalMesh.bounds;
+
+        int height = 0;
+        float time = 0f;
         foreach (var clip in clips)
         {
-            CalculateBounds(clip, ref boundData.bounds);
+            CalculateBounds(clip, ref data.bounds);
+            var frames = (int)(clip.length * clip.frameRate);
+            data.clips.Add(new VATAnimationClipData
+            {
+                name = clip.name,
+                frameRate = clip.frameRate,
+                start = time,
+                end = time + clip.length,
+            });
+            time += clip.length;
+            height += frames;
         }
-        AssetDatabase.CreateAsset(boundData, $"Assets/Vertex Animation Textures/{originalMesh.name}_bound.asset");
+        AssetDatabase.CreateAsset(data, $"Assets/Vertex Animation Textures/{originalMesh.name}_bound.asset");
+
+        // 텍스처 생성
+        var texture = new Texture2D(vertices.Length, height, format, flags);
+        Debug.Log($"Texture Size: {texture.width} x {texture.height}");
         
-        foreach (var clip in clips)
+        var bounds = data.bounds;
+        var mesh = new Mesh();
+        int y = 0;
+        for (var i = 0; i < clips.Length; i++)
         {
+            var clip = clips[i];
+            var frameRate = clip.frameRate;
+            var invFrameRate = 1f / frameRate;
+            var frames = (int)(clip.length * frameRate);
             Debug.Log("================================");
-            Export(clip, boundData.bounds);
+            Debug.Log($"Animation Clip: {clip.name} ({clip.length}s, {clip.frameRate} FPS)", clip);
+
+            // var sb = new StringBuilder(mesh.vertexCount);
+            Debug.Log($"Bounds: {bounds.Colored(Color.yellow)}");
+            for (int frame = 0; frame < frames; frame++)
+            {
+                float t = frame * invFrameRate;
+                clip.SampleAnimation(obj, t); // 오브젝트에 특정 시간대 애니메이션 적용
+                renderer.BakeMesh(mesh); // mesh에 현재 메시 상태 저장 
+                var tempVertices = mesh.vertices;
+                // sb.Clear();
+                // sb.AppendLine($"at {t:F2}s ...");
+                for (int x = 0; x < mesh.vertexCount; x++)
+                {
+                    // [0, 1]로 정규화
+                    var rawPosition = tempVertices[x];
+                    var normalizedPosition = bounds.Normalize(rawPosition);
+                    var color = EncodePositionToRGB(normalizedPosition);
+                    // sb.AppendLine($"[{x:0000}] {rawPosition} => {normalizedPosition} => {color.Colored(color)}");
+                    texture.SetPixel(x, y, color);
+                }
+
+                // Debug.Log(sb.ToString());
+                ++y;
+            }
         }
+
+        // 텍스처 파일 저장
+        texture.Apply();
+        var bytes = texture.EncodeToPNG();
+        var directory = Application.dataPath + "/Vertex Animation Textures/";
+        if (!Directory.Exists(directory)) Directory.CreateDirectory(directory);
+        var fileName = $"{originalMesh.name}_texture.png";
+        var path = directory + fileName;
+        File.WriteAllBytes(directory + fileName, bytes);
+        AssetDatabase.Refresh();
+
+        var importer = (TextureImporter)AssetImporter.GetAtPath($"Assets/Vertex Animation Textures/{fileName}");
+        Debug.Log($"Exported to {path}", importer);
+        importer.npotScale = TextureImporterNPOTScale.None; // 안하면 개박살남
+        importer.mipmapEnabled = false; // 굳이 할 이유가 없음
+        importer.sRGBTexture = false;
+        importer.GetDefaultPlatformTextureSettings().format = TextureImporterFormat.RGBA32;
     }
 
     private void CalculateBounds(AnimationClip clip, ref Bounds bounds)
@@ -73,60 +137,6 @@ public class TextureExporter : MonoBehaviour
 
     private void Export(AnimationClip clip, in Bounds bounds)
     {
-        var obj = animator.gameObject;
-        var originalMesh = renderer.sharedMesh; // 원본 메시
-        var vertices = originalMesh.vertices;
-        var timeUnit = 1f / clip.frameRate;
-        var frames = (int)(clip.length * clip.frameRate);
-        Debug.Log($"Animation Clip: {clip.name} ({clip.length}s, {clip.frameRate} FPS)", clip);
-
-        // 텍스처 생성
-        var texture = new Texture2D(vertices.Length, frames, format, flags);
-        Debug.Log($"Texture Size: {texture.width} x {texture.height}");
-
-        // var bounds = originalMesh.bounds;
-        var mesh = new Mesh();
-        int y = 0;
-        Debug.Log($"Bounds: {bounds.Colored(Color.yellow)}");
-        var sb = new StringBuilder(mesh.vertexCount);
-        for (float t = 0; t < clip.length; t += timeUnit)
-        {
-            clip.SampleAnimation(obj, t); // 오브젝트에 특정 시간대 애니메이션 적용
-            renderer.BakeMesh(mesh); // mesh에 현재 메시 상태 저장 
-            var tempVertices = mesh.vertices;
-            sb.Clear();
-            sb.AppendLine($"at {t:F2}s ...");
-            for (int x = 0; x < mesh.vertexCount; x++)
-            {
-                // [0, 1]로 정규화
-                var rawPosition = tempVertices[x];
-                var normalizedPosition = bounds.Normalize(rawPosition);
-                var color = EncodePositionToRGB(normalizedPosition);
-                sb.AppendLine($"[{x:0000}] {rawPosition} => {normalizedPosition} => {color.Colored(color)}");
-                texture.SetPixel(x, y, color);
-            }
-
-            Debug.Log(sb.ToString());
-
-            ++y;
-        }
-
-        // 텍스처 파일 저장
-        texture.Apply();
-        var bytes = texture.EncodeToPNG();
-        var directory = Application.dataPath + "/Vertex Animation Textures/";
-        if (!Directory.Exists(directory)) Directory.CreateDirectory(directory);
-        var fileName = $"{obj.name}-{clip.name}.png";
-        var path = directory + fileName;
-        File.WriteAllBytes(directory + fileName, bytes);
-        AssetDatabase.Refresh();
-
-        var importer = (TextureImporter)AssetImporter.GetAtPath($"Assets/Vertex Animation Textures/{fileName}");
-        Debug.Log($"Exported to {path}", importer);
-        importer.npotScale = TextureImporterNPOTScale.None; // 안하면 개박살남
-        importer.mipmapEnabled = false; // 굳이 할 이유가 없음
-        importer.sRGBTexture = false;
-        importer.GetDefaultPlatformTextureSettings().format = TextureImporterFormat.RGBA32;
     }
 
     private static int count = 0;

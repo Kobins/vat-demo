@@ -7,7 +7,7 @@ using UnityEngine;
 public class BoundPropertySetter : MonoBehaviour
 {
 
-    [SerializeField] private CustomBoundData _boundData;
+    [SerializeField] private VATData _boundData;
     
     private MeshFilter meshFilter;
     private new MeshRenderer renderer;

@@ -15,3 +15,48 @@ MonoBehaviour:
   bounds:
     m_Center: {x: 0.0018496811, y: 0.56151575, z: 0.06102678}
     m_Extent: {x: 0.3452975, y: 0.57669145, z: 0.45787564}
+  clips:
+  - name: backwards-run
+    start: 0
+    end: 0.75000006
+    frameRate: 60
+  - name: backwards-walk
+    start: 0.75000006
+    end: 1.5833335
+    frameRate: 60
+  - name: idle
+    start: 1.5833335
+    end: 5.5833335
+    frameRate: 60
+  - name: walk
+    start: 5.5833335
+    end: 6.75
+    frameRate: 60
+  - name: run
+    start: 6.75
+    end: 7.4166665
+    frameRate: 60
+  - name: jump-up
+    start: 7.4166665
+    end: 7.733333
+    frameRate: 60
+  - name: jump-float
+    start: 7.733333
+    end: 9.15
+    frameRate: 60
+  - name: jump-down
+    start: 9.15
+    end: 9.433333
+    frameRate: 60
+  - name: pickup
+    start: 9.433333
+    end: 11.383333
+    frameRate: 60
+  - name: wave
+    start: 11.383333
+    end: 13.8
+    frameRate: 60
+  - name: victory
+    start: 13.8
+    end: 17.366667
+    frameRate: 60

@@ -20,6 +20,8 @@ Shader "VAT/VATUnlit"
             #pragma fragment frag
             // make fog work
             #pragma multi_compile_fog
+            // GPU Instancing
+            #pragma multi_compile_instancing
 
             #include "UnityCG.cginc"
 
@@ -28,6 +30,7 @@ Shader "VAT/VATUnlit"
                 uint vertexId : SV_VertexID;
                 float4 vertex : POSITION;
                 float2 uv : TEXCOORD0;
+                UNITY_VERTEX_INPUT_INSTANCE_ID // GPU Instancing
             };
 
             struct v2f
