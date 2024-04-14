@@ -51,7 +51,7 @@ public class TextureExporter : MonoBehaviour
         {
             CalculateBounds(clip, ref data.bounds);
             var frames = (int)(clip.length * clip.frameRate);
-            data.clips.Add(new VATAnimationClipData
+            data.clips.Add(new VATClipData
             {
                 name = clip.name,
                 frameRate = clip.frameRate,

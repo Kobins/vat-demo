@@ -4,7 +4,7 @@ Shader "VAT/VATUnlit"
     {
         _MainTex ("Texture", 2D) = "white" {}
         _VAT_Vertices ("VAT Vertices", 2D) = "white" {}
-        _VAT_Float ("VAT Float", Float) = 0
+        _VAT_Frame_Index ("VAT Frame Index", Float) = 0
         [ShowAsVector3] _VAT_Bounds_Min ("VAT Bounds Min", Vector) = (0,0,0,0)
         [ShowAsVector3] _VAT_Bounds_Max ("VAT Bounds Max", Vector) = (0,0,0,0)
     }
@@ -44,15 +44,19 @@ Shader "VAT/VATUnlit"
             sampler2D _VAT_Vertices;
             float4 _VAT_Vertices_TexelSize;
             float4 _MainTex_ST;
-            float _VAT_Float;
+            UNITY_INSTANCING_BUFFER_START(Props)
+                UNITY_DEFINE_INSTANCED_PROP(float, _VAT_Frame_Index)
+            UNITY_INSTANCING_BUFFER_END(Props)
             float3 _VAT_Bounds_Min;
             float3 _VAT_Bounds_Max;
 
             v2f vert (appdata v)
             {
+                UNITY_SETUP_INSTANCE_ID(v);
+                
                 float x = v.vertexId + 0.5f;
                 // float y = _Time.y + 0.5f;
-                float y = _VAT_Float * _VAT_Vertices_TexelSize.w + 0.5f;
+                float y = UNITY_ACCESS_INSTANCED_PROP(Props, _VAT_Frame_Index) + 0.5f;
                 float4 texelPosition = float4(x, y, 0, 0) * _VAT_Vertices_TexelSize;
                 float4 rawColorPosition = tex2Dlod(_VAT_Vertices, texelPosition);
                 uint rawColor =

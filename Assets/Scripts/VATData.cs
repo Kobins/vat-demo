@@ -6,17 +6,17 @@ using UnityEngine;
 public class VATData : ScriptableObject
 {
     public Bounds bounds;
-    public List<VATAnimationClipData> clips = new();
+    public List<VATClipData> clips = new();
 
 
-    private Dictionary<string, VATAnimationClipData> clipByName = null;
-    public Dictionary<string, VATAnimationClipData> ClipByName
+    private Dictionary<string, VATClipData> clipByName = null;
+    public Dictionary<string, VATClipData> ClipByName
     {
         get
         {
             if (clipByName == null)
             {
-                clipByName = new Dictionary<string, VATAnimationClipData>(clips.Count);
+                clipByName = new Dictionary<string, VATClipData>(clips.Count);
                 foreach (var clip in clips)
                 {
                     if (!ClipByName.TryAdd(clip.name, clip))
@@ -31,10 +31,14 @@ public class VATData : ScriptableObject
 }
 
 [Serializable]
-public class VATAnimationClipData
+public class VATClipData
 {
     public string name;
     public float start;
     public float end;
     public float frameRate;
+
+    public float StartFrame => start * frameRate;
+    public float EndFrame => end * frameRate;
+    public float FrameCount => (end - start) * frameRate;
 }

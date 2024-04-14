@@ -18,11 +18,11 @@ MonoBehaviour:
   clips:
   - name: backwards-run
     start: 0
-    end: 0.75000006
+    end: 0.7500001
     frameRate: 60
   - name: backwards-walk
     start: 0.75000006
-    end: 1.5833335
+    end: 1.583333
     frameRate: 60
   - name: idle
     start: 1.5833335

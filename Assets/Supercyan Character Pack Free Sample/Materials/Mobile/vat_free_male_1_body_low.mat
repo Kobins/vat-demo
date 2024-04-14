@@ -103,7 +103,8 @@ Material:
     - _SrcBlendAlpha: 1
     - _Surface: 0
     - _UVSec: 0
-    - _VAT_Float: 3.5331702
+    - _VAT_Float: 519.76227
+    - _VAT_Frame_Index: 0
     - _ZWrite: 1
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
