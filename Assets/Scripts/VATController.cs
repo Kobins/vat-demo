@@ -13,6 +13,8 @@ public class VATController : MonoBehaviour
     private static readonly int VatBoundsMin = Shader.PropertyToID("_VAT_Bounds_Min");
     private static readonly int VatBoundsMax = Shader.PropertyToID("_VAT_Bounds_Max");
     private static readonly int VatFrameIndex = Shader.PropertyToID("_VAT_Frame_Index");
+    private static readonly int VatPreviousFrameIndex = Shader.PropertyToID("_VAT_Prev_Frame_Index");
+    private static readonly int VatBlendFactor = Shader.PropertyToID("_VAT_Blend_Factor");
 
     private void Awake()
     {
@@ -35,13 +37,24 @@ public class VATController : MonoBehaviour
         }
     }
 
+    [SerializeField] private int prevAnimationIndex = -1;
+    public int PrevAnimationIndex
+    {
+        get => prevAnimationIndex;
+        set => prevAnimationIndex = value;
+    }
+
     private void ResetFrame()
     {
         frameIndex = Clip?.start * Clip?.frameRate ?? 0;
     }
 
     public VATClipData Clip => !data || data.clips.Count <= 0 ? null : data.clips[AnimationIndex % data.clips.Count];
+    public VATClipData PrevClip => !data || data.clips.Count <= 0 || PrevAnimationIndex == -1 ? null : data.clips[PrevAnimationIndex % data.clips.Count];
     public float frameIndex = 0;
+    public float prevFrameIndex = 0;
+    [Range(0f, 1f)]
+    public float blendFactor = 0f;
 
     private void OnEnable()
     {
@@ -55,6 +68,7 @@ public class VATController : MonoBehaviour
         if (!data || data.clips.Count <= 0)
         {
             AnimationIndex = -1;
+            PrevAnimationIndex = -1;
             return;
         }
 
@@ -64,6 +78,14 @@ public class VATController : MonoBehaviour
         }else if (AnimationIndex >= data.clips.Count)
         {
             AnimationIndex = data.clips.Count - 1;
+        }
+
+        if (PrevAnimationIndex < -1)
+        {
+            PrevAnimationIndex = -1;
+        }else if (PrevAnimationIndex >= data.clips.Count)
+        {
+            PrevAnimationIndex = data.clips.Count - 1;
         }
     }
 
@@ -88,6 +110,7 @@ public class VATController : MonoBehaviour
         }
 
         var currentClip = Clip;
+        var previousClip = PrevClip;
         if (currentClip != null)
         {
             frameIndex += Time.deltaTime * currentClip.frameRate;
@@ -95,10 +118,20 @@ public class VATController : MonoBehaviour
             {
                 frameIndex -= currentClip.FrameCount;
             }
+            if (previousClip != null)
+            {
+                prevFrameIndex += Time.deltaTime * previousClip.frameRate;
+                while (prevFrameIndex >= previousClip.EndFrame)
+                {
+                    prevFrameIndex -= previousClip.FrameCount;
+                }
+            }
             
             var props = new MaterialPropertyBlock();
             props.SetFloat(VatFrameIndex, Mathf.Floor(frameIndex));
+            props.SetFloat(VatPreviousFrameIndex, Mathf.Floor(prevFrameIndex));
+            props.SetFloat(VatBlendFactor, PrevAnimationIndex == -1 ? 1f : blendFactor);
             renderer.SetPropertyBlock(props);
-        } 
+        }
     }
 }
