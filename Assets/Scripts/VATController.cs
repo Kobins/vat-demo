@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -297,12 +298,15 @@ public class VATController : MonoBehaviour
     {
         return data.ClipByName.TryGetValue(clip.name, out var clipData) ? clipData.index : -1;
     }
+        private static string ToString(AnimatorClipInfo[] clipInfo) =>
+            string.Join(", ", clipInfo.Select(it => $"{it.clip.name}={(int)(it.weight*100)}%"));
     private void UpdateAnimator(int layerIndex)
     {
         var vat = this;
         var currentClipInfo = animator.GetCurrentAnimatorClipInfo(layerIndex);
         var nextClipInfo = animator.GetNextAnimatorClipInfo(layerIndex);
         // Debug.Log($"[{layerIndex}] UPDATE - normalized: {stateInfo.normalizedTime}, current[{currentClipInfo.Length}]: {ToString(currentClipInfo)} /// next[{nextClipInfo.Length}]: {ToString(nextClipInfo)}");
+        Debug.Log($"[{layerIndex}] UPDATE - current[{currentClipInfo.Length}]: {ToString(currentClipInfo)} /// next[{nextClipInfo.Length}]: {ToString(nextClipInfo)}");
 
         // 현재 실행중인 애니메이션 클립이 없음: 아무것도 안 함
         if (currentClipInfo.Length <= 0)
@@ -334,7 +338,7 @@ public class VATController : MonoBehaviour
             vat.PrevAnimationIndex = GetAnimationIndexByClip(prev.clip);
             vat.AnimationIndex = GetAnimationIndexByClip(current.clip);
             vat.blendFactor = current.weight;
-            Debug.Log($"[{layerIndex}][VAT] current==2, prev={vat.PrevAnimationIndex}, current={vat.AnimationIndex}, blendFactor={vat.blendFactor}");
+            Debug.Log($"[{layerIndex}][VAT] current==2, prev({prev.clip.name})={vat.PrevAnimationIndex}, current({current.clip.name})={vat.AnimationIndex}, blendFactor={vat.blendFactor}");
             return;
         }
 

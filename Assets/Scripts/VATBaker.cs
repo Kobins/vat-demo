@@ -158,6 +158,7 @@ public class VATBaker : MonoBehaviour
         var platformTextureSettings = importer.GetDefaultPlatformTextureSettings();
         platformTextureSettings.format = TextureImporterFormat.RGBA32;
         importer.SetPlatformTextureSettings(platformTextureSettings);
+        importer.SaveAndReimport();
 
         // 오브젝트 복제
         var vatObj = Instantiate(obj);
