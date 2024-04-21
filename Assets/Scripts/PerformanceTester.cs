@@ -22,7 +22,7 @@ public class PerformanceTester : MonoBehaviour
             var vat = obj.GetComponentInChildren<VATController>();
             if (vat)
             {
-                vat.AnimationIndex = Random.Range(0, vat.Data.clips.Count);
+                vat.AnimationIndex = Random.Range(0, vat.data.clips.Count);
             }
         }
     }
