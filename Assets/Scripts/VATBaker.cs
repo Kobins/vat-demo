@@ -191,6 +191,7 @@ public class VATBaker : MonoBehaviour
         vatController.AnimationIndex = 0;
         vatController.PrevAnimationIndex = 0;
         vatController.blendFactor = 1f;
+        vatController.animator = vatAnimator;
 
     }
 
