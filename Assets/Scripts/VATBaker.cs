@@ -45,6 +45,15 @@ public class VATBaker : MonoBehaviour
         Debug.Log($"Target Mesh: {originalMesh} ({vertices.Length} vertices)", originalMesh);
 
         var controller = animator.runtimeAnimatorController;
+        var editorController = controller as AnimatorController;
+        if(editorController) foreach (var layer in editorController.layers)
+        {
+            foreach (var childState in layer.stateMachine.states)
+            {
+                childState.state.writeDefaultValues = false;
+            }
+            AssetDatabase.SaveAssetIfDirty(editorController);
+        }
         var clips = controller.animationClips;
         Debug.Log(
             $"exporting {clips.Length} clips from {animator.name}: [{string.Join(", ", clips.Select(it => it.name))}]");

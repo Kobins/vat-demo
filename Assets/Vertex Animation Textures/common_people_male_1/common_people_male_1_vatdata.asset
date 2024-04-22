@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: common_people_male_1_vatdata
   m_EditorClassIdentifier: 
   bounds:
-    m_Center: {x: 0.0018496811, y: 0.56151575, z: 0.06102678}
+    m_Center: {x: 0.0018496215, y: 0.56151575, z: 0.06102678}
     m_Extent: {x: 0.3452975, y: 0.57669145, z: 0.45787564}
   clips:
   - index: 0
