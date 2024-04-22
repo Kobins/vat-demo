@@ -249,7 +249,7 @@ public class VATController : MonoBehaviour
                 frameIndex = GetFrame(AnimationIndex);
                 if(PrevAnimationIndex >= 0)
                     prevFrameIndex = GetFrame(PrevAnimationIndex);
-                Debug.Log($"frameIndex={frameIndex}, prevFrameIndex={prevFrameIndex}");
+                // Debug.Log($"frameIndex={frameIndex}, prevFrameIndex={prevFrameIndex}");
             }
             // 애니메이터를 사용하지 않으면 설정된 값에 따라 Repeat 플레이
             else
@@ -305,8 +305,9 @@ public class VATController : MonoBehaviour
         var vat = this;
         var currentClipInfo = animator.GetCurrentAnimatorClipInfo(layerIndex);
         var nextClipInfo = animator.GetNextAnimatorClipInfo(layerIndex);
+
         // Debug.Log($"[{layerIndex}] UPDATE - normalized: {stateInfo.normalizedTime}, current[{currentClipInfo.Length}]: {ToString(currentClipInfo)} /// next[{nextClipInfo.Length}]: {ToString(nextClipInfo)}");
-        Debug.Log($"[{layerIndex}] UPDATE - current[{currentClipInfo.Length}]: {ToString(currentClipInfo)} /// next[{nextClipInfo.Length}]: {ToString(nextClipInfo)}");
+        // Debug.Log($"[{layerIndex}] UPDATE NT={currentStateInfo.normalizedTime} - current[{currentClipInfo.Length}]: {ToString(currentClipInfo)} /// next[{nextClipInfo.Length}]: {ToString(nextClipInfo)}");
 
         // 현재 실행중인 애니메이션 클립이 없음: 아무것도 안 함
         if (currentClipInfo.Length <= 0)
@@ -325,7 +326,7 @@ public class VATController : MonoBehaviour
             vat.PrevAnimationIndex = GetAnimationIndexByClip(prev.clip);
             vat.AnimationIndex = GetAnimationIndexByClip(current.clip);
             vat.blendFactor = blendFactor;
-            Debug.Log($"[{layerIndex}][VAT] next >=1, prev={vat.PrevAnimationIndex}, current={vat.AnimationIndex}, blendFactor={vat.blendFactor}");
+            // Debug.Log($"[{layerIndex}][VAT] next >=1, prev={vat.PrevAnimationIndex}, current={vat.AnimationIndex}, blendFactor={vat.blendFactor}");
             return;
         }
         
@@ -338,7 +339,7 @@ public class VATController : MonoBehaviour
             vat.PrevAnimationIndex = GetAnimationIndexByClip(prev.clip);
             vat.AnimationIndex = GetAnimationIndexByClip(current.clip);
             vat.blendFactor = current.weight;
-            Debug.Log($"[{layerIndex}][VAT] current==2, prev({prev.clip.name})={vat.PrevAnimationIndex}, current({current.clip.name})={vat.AnimationIndex}, blendFactor={vat.blendFactor}");
+            // Debug.Log($"[{layerIndex}][VAT] current==2, prev({prev.clip.name})={vat.PrevAnimationIndex}, current({current.clip.name})={vat.AnimationIndex}, blendFactor={vat.blendFactor}");
             return;
         }
 
@@ -348,7 +349,7 @@ public class VATController : MonoBehaviour
             vat.PrevAnimationIndex = -1;
             vat.AnimationIndex = GetAnimationIndexByClip(current.clip);
             vat.blendFactor = 1f;
-            Debug.Log($"[{layerIndex}][VAT] current==1, prev={vat.PrevAnimationIndex}, current={vat.AnimationIndex}, blendFactor={vat.blendFactor}");
+            // Debug.Log($"[{layerIndex}][VAT] current==1, prev={vat.PrevAnimationIndex}, current={vat.AnimationIndex}, blendFactor={vat.blendFactor}");
             return;
         }
         

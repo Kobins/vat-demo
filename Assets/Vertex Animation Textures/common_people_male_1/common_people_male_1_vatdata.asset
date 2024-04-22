@@ -13,6 +13,72 @@ MonoBehaviour:
   m_Name: common_people_male_1_vatdata
   m_EditorClassIdentifier: 
   bounds:
-    m_Center: {x: 0, y: 0.5411828, z: -0.008388169}
-    m_Extent: {x: 0.2855948, y: 0.5411827, z: 0.17320362}
-  clips: []
+    m_Center: {x: 0.0018496811, y: 0.56151575, z: 0.06102678}
+    m_Extent: {x: 0.3452975, y: 0.57669145, z: 0.45787564}
+  clips:
+  - index: 0
+    name: backwards-run
+    start: 0
+    end: 0.75000006
+    frameRate: 60
+    clipAsset: {fileID: 7400000, guid: d004bf6d76996e948b2644b16ce77f8c, type: 2}
+  - index: 1
+    name: backwards-walk
+    start: 0.75000006
+    end: 1.5833335
+    frameRate: 60
+    clipAsset: {fileID: 7400000, guid: 6ab80d2f6074c7e40b5988ee127526b2, type: 2}
+  - index: 2
+    name: idle
+    start: 1.5833335
+    end: 5.5833335
+    frameRate: 60
+    clipAsset: {fileID: 7400000, guid: 847dc4f51a217a645bb0c5ffdebc0ffd, type: 2}
+  - index: 3
+    name: walk
+    start: 5.5833335
+    end: 6.75
+    frameRate: 60
+    clipAsset: {fileID: 7400000, guid: 79796dcb08a09584aae88c53fe6db85e, type: 2}
+  - index: 4
+    name: run
+    start: 6.75
+    end: 7.4166665
+    frameRate: 60
+    clipAsset: {fileID: 7400000, guid: d6d936fc4cd56f24b90905e06d45efc4, type: 2}
+  - index: 5
+    name: jump-up
+    start: 7.4166665
+    end: 7.733333
+    frameRate: 60
+    clipAsset: {fileID: 7400000, guid: 5f5602243ebb4844a98253f5b526f9ca, type: 2}
+  - index: 6
+    name: jump-float
+    start: 7.733333
+    end: 9.15
+    frameRate: 60
+    clipAsset: {fileID: 7400000, guid: 8dc2665473e201546911ba1f2002d319, type: 2}
+  - index: 7
+    name: jump-down
+    start: 9.15
+    end: 9.433333
+    frameRate: 60
+    clipAsset: {fileID: 7400000, guid: 3ce6147cb01ef7340aa614960f7283de, type: 2}
+  - index: 8
+    name: pickup
+    start: 9.433333
+    end: 11.383333
+    frameRate: 60
+    clipAsset: {fileID: 7400000, guid: 6ead3d1a98af6fe4d99ba02fdbedd80f, type: 2}
+  - index: 9
+    name: wave
+    start: 11.383333
+    end: 13.8
+    frameRate: 60
+    clipAsset: {fileID: 7400000, guid: 823ffa5da860216438f61a34dd676f9a, type: 2}
+  - index: 10
+    name: victory
+    start: 13.8
+    end: 17.366667
+    frameRate: 60
+    clipAsset: {fileID: 7400000, guid: 002a45c893e69b047ae48f66e0a424c2, type: 2}

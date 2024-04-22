@@ -57,7 +57,6 @@ public class VATBaker : MonoBehaviour
         if (!Directory.Exists(directory+"Clips/")) Directory.CreateDirectory(directory+"Clips/");
         var assetDirectory = $"Assets/Vertex Animation Textures/{identifier}/";
 
-        AssetDatabase.CreateAsset(data, $"{assetDirectory}{originalMesh.name}_vatdata.asset");
         
         var relativePath = renderer.name;
         {
@@ -102,6 +101,7 @@ public class VATBaker : MonoBehaviour
             overrideList.Add(new KeyValuePair<AnimationClip, AnimationClip>(clip, vatClip));
         }
 
+        AssetDatabase.CreateAsset(data, $"{assetDirectory}{originalMesh.name}_vatdata.asset");
         var vatOverrideController = new AnimatorOverrideController(controller);
         vatOverrideController.ApplyOverrides(overrideList);
         AssetDatabase.CreateAsset(vatOverrideController, $"{assetDirectory}{originalMesh.name}_override_controller.overrideController");

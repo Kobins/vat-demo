@@ -37,6 +37,6 @@ Material:
     - _VAT_Frame_Index: 0
     - _VAT_Prev_Frame_Index: 0
     m_Colors:
-    - _VAT_Bounds_Max: {r: 0.3471471, g: 1.1382072, b: 0.5189024, a: 0}
-    - _VAT_Bounds_Min: {r: -0.34344786, g: -0.0151757, b: -0.39684886, a: 0}
+    - _VAT_Bounds_Max: {r: 0.34714717, g: 1.1382072, b: 0.5189024, a: 0}
+    - _VAT_Bounds_Min: {r: -0.3434478, g: -0.0151757, b: -0.39684886, a: 0}
   m_BuildTextureStacks: []
